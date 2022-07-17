@@ -86,7 +86,8 @@ enum Player {
     Two,
 }
 
-enum Column {
+// player action description
+enum DropInColumn {
     One,
     Two,
     Three,
@@ -192,9 +193,25 @@ mod tests {
         Board::position_to_index(Position { col: 0, row: 6 });
     }
 
-
+    // INDEX_TO_POSITION
     #[test]
     fn index_to_position_test() {
-        
+        index_to_position_test_helper(0, Position { col: 0, row: 0});
+        index_to_position_test_helper(0, Position { col: 0, row: 0});
+        index_to_position_test_helper(0, Position { col: 0, row: 0});
+        index_to_position_test_helper(0, Position { col: 0, row: 0});
+        index_to_position_test_helper(0, Position { col: 0, row: 0});
+    }
+    
+    #[test]
+    #[should_panic]
+    fn index_to_position_panic_test_1() {
+        Board::index_to_position(-1); // out of bound should panic so we can catch bugs
+    }
+    
+    #[test]
+    #[should_panic]
+    fn index_to_position_panic_test_2() {
+        Board::index_to_position(42); // out of bound should panic so we can catch bugs
     }
 }
