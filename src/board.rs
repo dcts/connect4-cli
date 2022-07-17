@@ -55,12 +55,12 @@ impl Board {
 
     // should panic for positions that are out of bound
     fn position_to_index(position: Position) -> i8 {
-        0 // invalid placeholder
+        position.row*7 + position.col
     }
 
     // should panic! if index out of bounds (< 0 || >= 42)
     fn index_to_position(index: i8) -> Position {
-        Position { col: 12, row: 12 } // invalid placeholder
+        Position { col: index%7 , row: index/6 - 1 }
     }
 }
 
@@ -84,6 +84,7 @@ enum Player {
     One,
     Two,
 }
+
 
 // player action description
 enum DropInColumn {
@@ -147,7 +148,7 @@ mod tests {
         let actual_index = Board::position_to_index(Position { row: row, col: col });
         assert_eq!(actual_index, target_index);
     }
-    
+
     // helper
     fn index_to_position_test_helper(start_index: i8, target_pos: Position) {
         let actual_position = Board::index_to_position(start_index);
