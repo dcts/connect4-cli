@@ -157,8 +157,8 @@ mod tests {
     use crate::board::*;
 
     // helper
-    fn position_to_index_test_helper(row: i8, col: i8, target_index: i8) {
-        let actual_index = Board::position_to_index(Position { row: row, col: col });
+    fn position_to_index_test_helper(col: i8, row: i8, target_index: i8) {
+        let actual_index = Board::position_to_index(Position { col: col, row: row });
         assert_eq!(actual_index, target_index);
     }
 
@@ -174,7 +174,7 @@ mod tests {
         let mut target_index = 0;
         for row in 0..6 {
             for col in 0..7 {
-                position_to_index_test_helper(row, col, target_index);
+                position_to_index_test_helper(col, row, target_index);
                 target_index += 1;
             }
         }
