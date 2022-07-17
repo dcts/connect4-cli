@@ -13,9 +13,9 @@ use rand::Rng;
 // [ ] board.get_col(Column) -> Vec<GameSlots>
 // [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
 
-const ROWS: i8 = 6;
-const COLUMNS: i8 = 7;
-const WIN_SEQUENCE: i8 = 4;
+const ROWS: usize = 6;
+const COLUMNS: usize = 7;
+const WIN_SEQUENCE: usize = 4;
 
 pub struct Board {
     slots: [SlotState; (COLUMNS * ROWS) as usize], // 7 cols * 6 rows
@@ -52,7 +52,7 @@ impl Board {
                     Player::Two => print!("🟡|"),
                 },
             }
-            if (indx + 1) as i8 % COLUMNS == 0 && indx as i8 != COLUMNS * ROWS - 1 {
+            if (indx + 1) % COLUMNS == 0 && indx != COLUMNS * ROWS - 1 {
                 // breaks line after 7 items, must be omitted for the 42nd element
                 print!("\n|");
             }
@@ -60,16 +60,16 @@ impl Board {
     }
 
     // should panic for positions that are out of bound
-    fn position_to_index(position: Position) -> i8 {
-        match position.col >= 0 && position.col < COLUMNS && position.row >= 0 && position.row < ROWS {
+    fn position_to_index(position: Position) -> usize {
+        match position.col < COLUMNS && position.row < ROWS {
             true => position.row*COLUMNS + position.col,
             false => panic!("Position out of bounds!")
         }
     }
 
     // should panic! if index out of bounds (< 0 || >= 42)
-    fn index_to_position(index: i8) -> Position {
-        match index >= 0 && index < COLUMNS*ROWS {
+    fn index_to_position(index: usize) -> Position {
+        match index < COLUMNS*ROWS {
             true => Position { col: index%COLUMNS , row: index/COLUMNS },
             false => panic!("Index out of bounds!")
         }
@@ -111,8 +111,8 @@ enum DropInColumn {
 
 #[derive(Debug)]
 struct Position {
-    col: i8,
-    row: i8,
+    col: usize,
+    row: usize,
 }
 
 // all directions needed to calculate endgame condition
@@ -162,13 +162,13 @@ mod tests {
     use crate::board::*;
 
     // helper
-    fn position_to_index_test_helper(col: i8, row: i8, target_index: i8) {
+    fn position_to_index_test_helper(col: usize, row: usize, target_index: usize) {
         let actual_index = Board::position_to_index(Position { col: col, row: row });
         assert_eq!(actual_index, target_index);
     }
 
     // helper
-    fn index_to_position_test_helper(start_index: i8, target_pos: Position) {
+    fn index_to_position_test_helper(start_index: usize, target_pos: Position) {
         let actual_position = Board::index_to_position(start_index);
         assert_eq!(actual_position, target_pos);
     }
@@ -186,11 +186,11 @@ mod tests {
     }
 
     // OUT OF BOUND SHOULD ALWAYS PANIC!
-    #[test]
-    #[should_panic]
-    fn position_to_index_left_panic_test() {
-        Board::position_to_index(Position { col: -1, row: 0 });
-    }
+    // #[test]
+    // #[should_panic]
+    // fn position_to_index_left_panic_test() {
+    //     Board::position_to_index(Position { col: -1, row: 0 });
+    // }
 
     #[test]
     #[should_panic]
@@ -198,11 +198,11 @@ mod tests {
         Board::position_to_index(Position { col: 7, row: 0 });
     }
 
-    #[test]
-    #[should_panic]
-    fn position_to_index_top_panic_test() {
-        Board::position_to_index(Position { col: 0, row: -1 });
-    }
+    // #[test]
+    // #[should_panic]
+    // fn position_to_index_top_panic_test() {
+    //     Board::position_to_index(Position { col: 0, row: -1 });
+    // }
 
     #[test]
     #[should_panic]
@@ -220,11 +220,11 @@ mod tests {
         index_to_position_test_helper(0, Position { col: 0, row: 0});
     }
 
-    #[test]
-    #[should_panic]
-    fn index_to_position_panic_test_1() {
-        Board::index_to_position(-1); // out of bound should panic so we can catch bugs
-    }
+    // #[test]
+    // #[should_panic]
+    // fn index_to_position_panic_test_1() {
+    //     Board::index_to_position(-1); // out of bound should panic so we can catch bugs
+    // }
 
     #[test]
     #[should_panic]
