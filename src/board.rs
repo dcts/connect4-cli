@@ -56,12 +56,18 @@ impl Board {
 
     // should panic for positions that are out of bound
     fn position_to_index(position: Position) -> i8 {
-        position.row*7 + position.col
+        match position.col >= 0 && position.col < 7 && position.row >= 0 && position.row < 6 {
+            true => position.row*7 + position.col,
+            false => panic!("Position out of bounds!")
+        }
     }
 
     // should panic! if index out of bounds (< 0 || >= 42)
     fn index_to_position(index: i8) -> Position {
-        Position { col: index%7 , row: index/6 - 1 }
+        match index >= 0 && index < 42 {
+            true => Position { col: index%7 , row: index/7 },
+            false => panic!("Index out of bounds!")
+        }
     }
 }
 
@@ -161,8 +167,8 @@ mod tests {
     fn position_to_index_test() {
         // test all 42 valid positions
         let mut target_index = 0;
-        for col in 0..7 {
-            for row in 0..6 {
+        for row in 0..6 {
+            for col in 0..7 {
                 position_to_index_test_helper(row, col, target_index);
                 target_index += 1;
             }
@@ -203,13 +209,13 @@ mod tests {
         index_to_position_test_helper(0, Position { col: 0, row: 0});
         index_to_position_test_helper(0, Position { col: 0, row: 0});
     }
-    
+
     #[test]
     #[should_panic]
     fn index_to_position_panic_test_1() {
         Board::index_to_position(-1); // out of bound should panic so we can catch bugs
     }
-    
+
     #[test]
     #[should_panic]
     fn index_to_position_panic_test_2() {
