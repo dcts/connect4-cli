@@ -8,6 +8,7 @@ fn main() {
 }
 
 // BOARD.rs
+
 // @TODO
 // static methods
 // [ ] Board::position_to_index(pos) -> index
@@ -44,20 +45,24 @@ impl Board {
     }
 
     fn print(&self) {
-        let mut c = 0;
-        for slot in self.slots {
-            match slot {
-                SlotState::Empty => print!("  |"),
-                SlotState::Occupied(p) => match p {
-                    Player::One => print!("🔴|"),
-                    Player::Two => print!("🟡|"),
+        self.slots
+            .iter()
+            .enumerate()
+            .for_each(|(indx, slot)| { 
+                if indx == 0 { // opening pipe
+                    print!("|");
                 }
-            }
-            if (c+1) % 7 == 0 {
-                println!("");
-            }
-            c += 1;
-        }
+                match slot {
+                    SlotState::Empty => print!("  |"),
+                    SlotState::Occupied(p) => match p {
+                        Player::One => print!("🔴|"),
+                        Player::Two => print!("🟡|"),
+                    }
+                }
+                if (indx+1) % 7 == 0 && indx != 41 { // breaks line after 7 items, must be omitted for the 42nd element
+                    print!("\n|");
+                }
+        })
     }
 }
 
