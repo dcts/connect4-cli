@@ -2,6 +2,11 @@
 
 play a casual game of connect 4 in your terminal. Writen in Rust.
 
+# Tasks
+- [ ] Game Logic Implementation
+- [ ] Graphics Engine with ASCII game state and menu logic
+- [ ] Networking Logic (with `libp2p`, see [tutorial](https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust) for more info)
+
 ### Roadmap
 - [ ] Game Logic
   - [ ] end game conditions
