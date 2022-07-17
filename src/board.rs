@@ -10,24 +10,30 @@ use rand::Rng;
 // [x] board.print()
 // [ ] board.check_endgame_condition() -> Option<Player>
 // [ ] board.drop(Column, Player) -> bool // bool indicates whether drop was successfull, if impossible => return false
-// [ ] board.get_open_position(Column) -> Option<Position> //position of the open slot in that column
+// [ ] board.get_col(Column) -> Vec<GameSlots>
+// [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
+
+const ROWS: i8 = 6;
+const COLUMNS: i8 = 7;
+const WIN_SEQUENCE: i8 = 4;
+
 pub struct Board {
-    slots: [SlotState; 7 * 6], // 7 cols * 6 rows
+    slots: [SlotState; (COLUMNS * ROWS) as usize], // 7 cols * 6 rows
 }
 
 impl Board {
     fn new() -> Board {
         Board {
-            slots: [SlotState::Empty; 7 * 6],
+            slots: [SlotState::Empty; (COLUMNS * ROWS) as usize],
         }
     }
 
     // just for testing
     pub fn random() -> Board {
-        let mut slots = [SlotState::Empty; 7 * 6];
+        let mut slots = [SlotState::Empty; (COLUMNS * ROWS) as usize];
         let mut c = 0;
-        while c < 7 * 6 {
-            slots[c] = random_slot();
+        while c < COLUMNS * ROWS {
+            slots[c as usize] = random_slot();
             c += 1;
         }
         Board { slots: slots }
@@ -46,7 +52,7 @@ impl Board {
                     Player::Two => print!("🟡|"),
                 },
             }
-            if (indx + 1) % 7 == 0 && indx != 41 {
+            if (indx + 1) as i8 % COLUMNS == 0 && indx as i8 != COLUMNS * ROWS - 1 {
                 // breaks line after 7 items, must be omitted for the 42nd element
                 print!("\n|");
             }
@@ -55,16 +61,16 @@ impl Board {
 
     // should panic for positions that are out of bound
     fn position_to_index(position: Position) -> i8 {
-        match position.col >= 0 && position.col < 7 && position.row >= 0 && position.row < 6 {
-            true => position.row*7 + position.col,
+        match position.col >= 0 && position.col < COLUMNS && position.row >= 0 && position.row < ROWS {
+            true => position.row*COLUMNS + position.col,
             false => panic!("Position out of bounds!")
         }
     }
 
     // should panic! if index out of bounds (< 0 || >= 42)
     fn index_to_position(index: i8) -> Position {
-        match index >= 0 && index < 42 {
-            true => Position { col: index%7 , row: index/7 },
+        match index >= 0 && index < COLUMNS*ROWS {
+            true => Position { col: index%COLUMNS , row: index/COLUMNS },
             false => panic!("Index out of bounds!")
         }
     }
