@@ -61,7 +61,7 @@ impl Board {
 
     // should panic! if index out of bounds (< 0 || >= 42)
     fn index_to_position(index: i8) -> Position {
-        Position { col: index%7 , row: index/6 }
+        Position { col: index%7 , row: index/6 - 1 }
     }
 }
 
