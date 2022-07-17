@@ -104,6 +104,7 @@ enum DropInColumn {
     Seven,
 }
 
+#[derive(Debug)]
 struct Position {
     col: i8,
     row: i8,
@@ -122,6 +123,11 @@ enum Direction {
 
 
 
+impl PartialEq for Position {
+	fn eq(&self, other: &Self) -> bool {
+		self.col == other.col && self.row == other.row
+	}
+}
 
 
 
@@ -159,8 +165,7 @@ mod tests {
     // helper
     fn index_to_position_test_helper(start_index: i8, target_pos: Position) {
         let actual_position = Board::index_to_position(start_index);
-        assert_eq!(actual_position.row, target_pos.row);
-        assert_eq!(actual_position.col, target_pos.col);
+        assert_eq!(actual_position, target_pos);
     }
 
     #[test]
