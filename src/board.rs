@@ -144,16 +144,6 @@ impl PartialEq for Position {
 
 
 
-
-
-
-
-
-
-
-
-
-
 /*
  * UNIT TESTS
  */
@@ -185,24 +175,11 @@ mod tests {
         }
     }
 
-    // OUT OF BOUND SHOULD ALWAYS PANIC!
-    // #[test]
-    // #[should_panic]
-    // fn position_to_index_left_panic_test() {
-    //     Board::position_to_index(Position { col: -1, row: 0 });
-    // }
-
     #[test]
     #[should_panic]
     fn position_to_index_right_panic_test() {
         Board::position_to_index(Position { col: 7, row: 0 });
     }
-
-    // #[test]
-    // #[should_panic]
-    // fn position_to_index_top_panic_test() {
-    //     Board::position_to_index(Position { col: 0, row: -1 });
-    // }
 
     #[test]
     #[should_panic]
@@ -219,12 +196,6 @@ mod tests {
         index_to_position_test_helper(0, Position { col: 0, row: 0});
         index_to_position_test_helper(0, Position { col: 0, row: 0});
     }
-
-    // #[test]
-    // #[should_panic]
-    // fn index_to_position_panic_test_1() {
-    //     Board::index_to_position(-1); // out of bound should panic so we can catch bugs
-    // }
 
     #[test]
     #[should_panic]
