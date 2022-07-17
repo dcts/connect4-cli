@@ -30,8 +30,12 @@ impl Board {
         }
     }
 
-    fn get_slot_state(position: Position) -> Option<SlotState> {
-        None
+    pub fn get_slot_state(&self, position: Position) -> Option<SlotState> {
+        let index_option = Board::position_to_index(position).ok();
+        match index_option {
+            Some(index) => Some(self.slots[index as usize]),
+            _ => None,
+        }
     }
 
     // just for testing
@@ -83,7 +87,7 @@ impl Board {
 }
 
 #[derive(Copy, Clone, Debug)]
-enum SlotState {
+pub enum SlotState {
     Empty,
     Occupied(Player),
 }
@@ -116,9 +120,9 @@ enum DropInColumn {
 }
 
 #[derive(Debug)]
-struct Position {
-    col: i8,
-    row: i8,
+pub struct Position {
+    pub col: i8,
+    pub row: i8,
 }
 
 // all directions needed to calculate endgame condition
