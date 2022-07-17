@@ -10,8 +10,7 @@ use rand::Rng;
 // [x] board.print()
 // [ ] board.check_endgame_condition() -> Option<Player>
 // [ ] board.drop(Column, Player) -> bool // bool indicates whether drop was successfull, if impossible => return false
-// [ ] board.get_col(Column) -> Vec<GameSlots>
-// [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
+// [ ] board.get_open_position(Column) -> Option<Position> //position of the open slot in that column
 pub struct Board {
     slots: [SlotState; 7 * 6], // 7 cols * 6 rows
 }
