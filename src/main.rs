@@ -8,6 +8,17 @@ fn main() {
 }
 
 // BOARD.rs
+// @TODO
+// static methods
+// [ ] Board::position_to_index(pos) -> index
+// [ ] Board::index_to_position(index) -> position
+// [ ] Board::get_neighbor_position(pos, directioin) -> position
+// instance methods
+// [x] board.print()
+// [ ] board.check_endgame_condition() -> Option<Player>
+// [ ] board.drop(Column, Player) -> bool // bool indicates whether drop was successfull, if impossible => return false
+// [ ] board.get_col(Column) -> Vec<GameState>
+// [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
 struct Board {
     slots: [SlotState; 7*6] // 7 cols * 6 rows
 }
@@ -18,6 +29,8 @@ impl Board {
             slots: [SlotState::Empty; 7*6]
         }
     }
+
+    // just for testing
     fn random() -> Board {
         let mut slots = [SlotState::Empty; 7*6];
         let mut c = 0;
