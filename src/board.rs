@@ -8,6 +8,7 @@ use rand::Rng;
 // [ ] Board::get_neighbor_position(pos, directioin) -> position
 // instance methods
 // [x] board.print()
+// [ ] board.has_valid_neighbors(Position, Direction) -> bool
 // [ ] board.get_slot_state(Position) -> Option<SlotState>
 // [ ] board.check_endgame_condition() -> Option<Player>
 // [ ] board.check_endgame_condition_for_slot(Position, Direction) -> Option<Player>
@@ -36,6 +37,45 @@ impl Board {
             Some(index) => Some(self.slots[index as usize]),
             _ => None,
         }
+    }
+
+    pub fn check_endgame_condition_for_position(&self, position: Position, direction: Direction) -> Option<Player> {
+        // dont bother checking when SlotState is empty
+        let index = Board::position_to_index(position);
+        let slot_state = self.slots[index as usize];
+        if let SlotState::Empty = slot_state {
+            return None;
+        }
+
+        match direction {
+            Direction::Right => (),
+            Direction::DownRight => (),
+            Direction::Down => (),
+            Direction::LeftDown => (),
+        }
+        
+        // match over all directions
+        //     => for every direction
+        //         => check if it has valid neighbors? => NO => exit out of this direction
+        //         => get neighbors
+        //         => all neighbors same as player
+
+        None
+
+
+        
+
+
+        // fn same_neighbors(starting_position: Position, direction: Direction) -> () {
+        //     let starting_player_index = Board::position_to_index(starting_position);
+        //     // let starting_player = self.slots[]
+        // }
+        // match direction {
+        //     Direction::Right => (),
+        //     Direction::DownRight => (),
+        //     Direction::Down => (),
+        //     Direction::LeftDown => (),
+        // }
     }
 
     // just for testing
@@ -68,15 +108,14 @@ impl Board {
             }
         })
     }
-
+    
     // should panic for positions that are out of bound
-    fn position_to_index(position: Position) -> Result<i8, String> {
+    fn position_to_index(position: Position) -> i8 {
         match position.col >= 0 && position.col < COLUMNS && position.row >= 0 && position.row < ROWS {
-            true => Ok(position.row*COLUMNS + position.col),
-            false => Err("Position out of bounds!".to_string()),
+            true => position.row*COLUMNS + position.col,
+            false => panic!("Position out of bounds!"),
         }
     }
-
     // should panic! if index out of bounds (< 0 || >= 42)
     fn index_to_position(index: i8) -> Result<Position, String> {
         match index >= 0 && index < COLUMNS*ROWS {
@@ -84,6 +123,56 @@ impl Board {
             false => Err("Index out of bounds!".to_string())
         }
     }
+    
+    fn has_valid_neighbors(position: Position, direction: Direction) -> bool {
+        for offset in 1..WIN_SEQUENCE {
+            match direction {
+                // Direction::DownLeft => {
+                //     if !is_valid_position() {
+                //         return false;
+                //     }
+                // },
+                // Direction::Down => {
+
+                // },
+                // Direction::DownRight => {
+
+                // },
+                // Direction::Right => {
+
+                // },
+            }
+            // get_neighbor(starting_position, direction: Direction, offset: i8);
+        }
+
+        true
+    }
+
+    // check if position is valid
+    fn is_valid_position(position: Position) -> bool {
+        let col = position.col;
+        let row = position.row;
+        let col_out_of_bounds = col < 0 || col >= COLUMNS;
+        let row_out_of_bounds = row < 0 || row >= ROWS;
+
+        !row_out_of_bounds && !col_out_of_bounds
+    }
+
+    // UNDO THE RESULT RETURN
+    // fn position_to_index(position: Position) -> Result<i8, String> {
+    //     match position.col >= 0 && position.col < COLUMNS && position.row >= 0 && position.row < ROWS {
+    //         true => Ok(position.row*COLUMNS + position.col),
+    //         false => Err("Position out of bounds!".to_string()),
+    //     }
+    // }
+    
+    // UNDO THE RESULT RETURN
+    // fn index_to_position(index: i8) -> Result<Position, String> {
+    //     match index >= 0 && index < COLUMNS*ROWS {
+    //         true => Ok(Position { col: index%COLUMNS , row: index/COLUMNS }),
+    //         false => Err("Index out of bounds!".to_string())
+    //     }
+    // }
 }
 
 #[derive(Copy, Clone, Debug)]
