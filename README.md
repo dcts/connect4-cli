@@ -29,6 +29,8 @@ play a casual game of connect 4 in your terminal. Writen in Rust.
         1. update lokal game state
         2. send move to other client as payload
   - [ ] wait for move from friend
+- [ ] OVERKILL FEATURES 
+  - [ ] Brutal Mode => both player have same color, remember your position you must
 
 # Graphics Engine Example
 ## Menu Engine (joining a game)
