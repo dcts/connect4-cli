@@ -145,7 +145,6 @@ pub fn find_win(board: &Board) -> Vec<Position> {
 }
 
 fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
-    let mut visited = vec![vec![false; COLUMNS]; ROWS];
     let mut queue: Vec<(Position, Vec<Position>, WinPathDirection)> = vec![];
 
     let path_color = match board.slot_for(&from) {
@@ -154,7 +153,6 @@ fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
         SlotState::Occupied(Player::Two) => 2,
     };
 
-    visited[from.row][from.col] = true;
     queue.push((from.clone(), vec![], WinPathDirection::Down));
     queue.push((from.clone(), vec![], WinPathDirection::Right));
     queue.push((from.clone(), vec![], WinPathDirection::LowerRight));
@@ -162,7 +160,7 @@ fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
 
     while !queue.is_empty() {
         let (current_pos, mut path, direction) = queue.remove(0);
-        if path.len() >= 3 {
+        if path.len() >= WIN_SEQUENCE-1 {
             path.push(current_pos);
             return path;
         }
@@ -177,8 +175,7 @@ fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
             SlotState::Occupied(Player::One) => 1,
             SlotState::Occupied(Player::Two) => 2,
         };
-        if !visited[possible_pos.row][possible_pos.col] && player_at == path_color {
-            visited[possible_pos.row][possible_pos.col] = true;
+        if player_at == path_color {
             let mut new_path = path.clone();
             new_path.push(current_pos.clone());
             queue.push((possible_pos, new_path, direction));
