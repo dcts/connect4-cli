@@ -8,17 +8,14 @@ fn main() {
     println!("Connect 4!");
 
     // game logic demo
-    let mut win_path: Vec<Position> = Vec::new();
-    let mut board = Board::random();
-    while win_path.len() < 3 {
-        board = Board::random();
-        win_path = find_win(&board);
-    }
+    let board = Board::random();
     board.print();
-
-    println!();
-    for p in win_path {
-        println!("row {} col {}", p.row, p.col)
+    println!("");
+    
+    let maybe_win_info = find_win(&board);
+    match maybe_win_info {
+        Some(win_info) => println!("Win Info: {:?}", win_info),
+        None => println!("no win found!"),
     }
       
     // // BOARD DEMO OLD

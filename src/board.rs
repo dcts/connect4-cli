@@ -39,7 +39,7 @@ impl Board {
         Board { slots: slots }
     }
 
-    pub fn set_slot_state(&mut self, position: Position, player: Player) -> () {
+    pub fn set_slot_state(&mut self, position: Position, player: Player) {
         let target_index = Board::position_to_index(&position);
         let target_slot_state = SlotState::Occupied(player); 
         self.slots[target_index] = target_slot_state;
@@ -84,7 +84,7 @@ impl Board {
         }
     }
 
-    fn slot_for(&self, pos: &Position) -> SlotState {
+    fn get_slot(&self, pos: &Position) -> SlotState {
         self.slots[Board::position_to_index(&pos)]
     }
 }
@@ -139,58 +139,78 @@ fn directional_neighbor(pos: &Position, direction: &WinPathDirection) -> Option<
     }
 }
 
-pub fn find_win(board: &Board) -> Vec<Position> {
-    for index in 0..board.slots.len() {
-        let pos = Board::index_to_position(index);
-        let path = find_win_for(board, &pos);
-        if path.len() > 0 {
-            return path;
-        }
-    }
-    Vec::new()
+#[derive(Debug)]
+pub struct WinInfo {
+    pub winner: Player,
+    pub win_path: Vec<Position>,
 }
 
-fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
+pub fn find_win(board: &Board) -> Option<WinInfo> {
+    for index in 0..board.slots.len() {
+        let pos = Board::index_to_position(index);
+        let mabye_win_info = find_win_for_position(board, &pos);
+        match mabye_win_info {
+            Some(win_info) => return Some(win_info),
+            _ => (),
+        }
+    }
+    None
+}
+
+fn find_win_for_position(board: &Board, from: &Position) -> Option<WinInfo> {
+    println!("===== find_for_pos: c={} r={} =====", from.col, from.row);
     let mut queue: Vec<(Position, Vec<Position>, WinPathDirection)> = vec![];
 
-    let path_color = match board.slot_for(&from) {
-        SlotState::Empty => return Vec::new(), // should never happen
-        SlotState::Occupied(Player::One) => 1,
-        SlotState::Occupied(Player::Two) => 2,
+    let player = match board.get_slot(&from) {
+        SlotState::Empty => return None, // if slot is empty, no winner can be found => return None
+        SlotState::Occupied(player) => player,
     };
 
+    // init breadth first search by adding all elements to queue
     queue.push((from.clone(), vec![], WinPathDirection::Down));
     queue.push((from.clone(), vec![], WinPathDirection::Right));
     queue.push((from.clone(), vec![], WinPathDirection::LowerRight));
     queue.push((from.clone(), vec![], WinPathDirection::UpperRight));
-
+    
+    
     while !queue.is_empty() {
-        let (current_pos, mut path, direction) = queue.remove(0);
-        if path.len() >= WIN_SEQUENCE-1 {
-            path.push(current_pos);
-            return path;
-        }
+        // pop element from queue
+        let queue_element = queue.remove(0);
+        let current_pos = queue_element.0;
+        let mut path = queue_element.1;
+        let direction = queue_element.2;
 
-        let possible_pos = directional_neighbor(&current_pos, &direction);
-        if possible_pos.is_none() {
-            break;
+        println!("      queue-len: {} path-len: {}", queue.len(), path.len());
+        
+        if path.len() >= WIN_SEQUENCE - 1 {
+            println!("      path.len >= WIN_SEQUENCE");
+            path.push(current_pos);
+            return Some(WinInfo {
+                winner: player,
+                win_path: path
+            });
         }
-        let possible_pos = possible_pos.unwrap();
-        let player_at = match board.slot_for(&possible_pos) {
-            SlotState::Empty => break,
-            SlotState::Occupied(Player::One) => 1,
-            SlotState::Occupied(Player::Two) => 2,
-        };
-        if player_at == path_color {
-            let mut new_path = path.clone();
-            new_path.push(current_pos.clone());
-            queue.push((possible_pos, new_path, direction));
+        
+        let possible_pos = directional_neighbor(&current_pos, &direction);
+        if !possible_pos.is_none() {
+            let next_pos = possible_pos.unwrap();
+            let player_at = match board.get_slot(&next_pos) {
+                SlotState::Empty => break,
+                SlotState::Occupied(player) => player,
+            };
+            if player_at == player_at {
+                println!("      same-player found");
+                let mut new_path = path.clone();
+                new_path.push(current_pos.clone());
+                queue.push((next_pos, new_path, direction));
+            }
         }
     }
-
-    Vec::new()
+    println!("      END queue-len: {}", queue.len());
+    None
 }
 
+// all directions needed to calculate endgame condition
 enum WinPathDirection {
     Right,
     Down,
@@ -198,21 +218,10 @@ enum WinPathDirection {
     UpperRight,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Player {
     One,
     Two,
-}
-
-// player action description
-enum DropInColumn {
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
 }
 
 #[derive(Clone, Debug)]
@@ -221,19 +230,21 @@ pub struct Position {
     pub row: usize,
 }
 
-// all directions needed to calculate endgame condition
-enum Direction {
-    LeftDown,
-    Down,
-    DownRight,
-    Right,
-}
-
 impl PartialEq for Position {
     fn eq(&self, other: &Self) -> bool {
         self.col == other.col && self.row == other.row
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 /*
  * UNIT TESTS
