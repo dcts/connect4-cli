@@ -39,6 +39,12 @@ impl Board {
         Board { slots: slots }
     }
 
+    pub fn set_slot_state(&mut self, position: Position, player: Player) -> () {
+        let target_index = Board::position_to_index(&position);
+        let target_slot_state = SlotState::Occupied(player); 
+        self.slots[target_index] = target_slot_state;
+    }
+
     pub fn print(&self) {
         self.slots.iter().enumerate().for_each(|(indx, slot)| {
             if indx == 0 {
@@ -193,7 +199,7 @@ enum WinPathDirection {
 }
 
 #[derive(Copy, Clone, Debug)]
-enum Player {
+pub enum Player {
     One,
     Two,
 }
