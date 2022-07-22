@@ -10,12 +10,20 @@ fn main() {
     // game logic demo
     let board = Board::random();
     board.print();
-    println!("");
+    let maybe_win_info = board.winner_exists();
     
-    let maybe_win_info = find_win(&board);
     match maybe_win_info {
-        Some(win_info) => println!("Win Info: {:?}", win_info),
-        None => println!("no win found!"),
+        Some(win_info) => {
+            println!("\n\n\nWin Info: \n{:?}\n", win_info);
+            // show sequence
+            let mut win_board = Board::new();
+            win_info.win_path.iter().for_each(|pos| {
+                let indx = Board::position_to_index(pos);
+                win_board.slots[indx] = SlotState::Occupied(win_info.winner);
+            });
+            win_board.print();
+        },
+        None => println!("\n\n\nno win found!"),
     }
       
     // // BOARD DEMO OLD
