@@ -1,17 +1,19 @@
 use rand::Rng;
 
 // BOARD.rs
-// @TODO
 // static methods
-// [ ] Board::position_to_index(pos) -> i8
-// [ ] Board::index_to_position(index) -> position
-// [ ] Board::get_neighbor_position(pos, directioin) -> position
+// [x] Board::new()
+// [x] Board::random()
+// [x] Board::is_valid_position()
+// [x] Board::position_to_index()
+// [x] Board::index_to_position() 
 // instance methods
+// [x] board.set_slot_state()
 // [x] board.print()
-// [ ] board.check_endgame_condition() -> Option<Player>
-// [ ] board.drop(Column, Player) -> bool // bool indicates whether drop was successfull, if impossible => return false
-// [ ] board.get_col(Column) -> Vec<GameSlots>
-// [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
+// [x] board.winner_exists()
+// [x] board.get_directional_neighbors()
+// [x] board.check_win_path()
+// [x] board.winner_exists_for_position()
 
 /**
 EXAMPLE BOARD
