@@ -13,30 +13,53 @@ use rand::Rng;
 // [ ] board.get_col(Column) -> Vec<GameSlots>
 // [ ] board.get_open_slot(Column) -> Option<i8> //index of the open slot in that column
 
-const ROWS: usize = 6;
-const COLUMNS: usize = 7;
+/**
+EXAMPLE BOARD
+|  |🔴|🔴|🟡|  |  |🟡|
+|🟡|🟡|  |  |  |  |🟡|
+|🟡|  |  |🟡|🔴|🟡|🟡|
+|🔴|🟡|🟡|  |🟡|🔴|🔴|
+|  |🟡|🔴|🟡|  |🟡|🟡|
+|🟡|  |  |  |🟡|  |🟡|
+ */
+
+// RULESET IS HARDCODED AS STANDARD VERSION FOR NOW
+const ROWS: usize = 6; 
+const COLS: usize = 7; 
 const WIN_SEQUENCE: usize = 4;
 
 pub struct Board {
-    slots: [SlotState; (COLUMNS * ROWS) as usize], // 7 cols * 6 rows
+    pub slots: [SlotState; (COLS * ROWS) as usize], // 7 cols * 6 rows
 }
 
 impl Board {
-    fn new() -> Board {
+    pub fn new() -> Board {
         Board {
-            slots: [SlotState::Empty; (COLUMNS * ROWS) as usize],
+            slots: [SlotState::Empty; (COLS * ROWS) as usize],
         }
     }
 
     // just for testing
     pub fn random() -> Board {
-        let mut slots = [SlotState::Empty; (COLUMNS * ROWS) as usize];
+        let mut slots = [SlotState::Empty; (COLS * ROWS) as usize];
         let mut c = 0;
-        while c < COLUMNS * ROWS {
+        while c < COLS * ROWS {
             slots[c as usize] = random_slot();
             c += 1;
         }
         Board { slots: slots }
+    }
+
+    pub fn is_valid_position(col: i8, row: i8) -> bool {
+        let col_is_out_of_bound = col < 0 || col >= (COLS as i8);
+        let row_is_out_of_bound = row < 0 || row >= (ROWS as i8);
+        !col_is_out_of_bound && !row_is_out_of_bound
+    }
+
+    pub fn set_slot_state(&mut self, position: Position, player: Player) {
+        let target_index = Board::position_to_index(&position);
+        let target_slot_state = SlotState::Occupied(player); 
+        self.slots[target_index] = target_slot_state;
     }
 
     pub fn print(&self) {
@@ -52,7 +75,7 @@ impl Board {
                     Player::Two => print!("🟡|"),
                 },
             }
-            if (indx + 1) % COLUMNS == 0 && indx != COLUMNS * ROWS - 1 {
+            if (indx + 1) % COLS == 0 && indx != COLS * ROWS - 1 {
                 // breaks line after 7 items, must be omitted for the 42nd element
                 print!("\n|");
             }
@@ -60,31 +83,127 @@ impl Board {
     }
 
     // should panic for positions that are out of bound
-    fn position_to_index(position: &Position) -> usize {
-        match position.col < COLUMNS && position.row < ROWS {
-            true => position.row * COLUMNS + position.col,
-            false => panic!("Position out of bounds!"),
+    pub fn position_to_index(position: &Position) -> usize {
+        match position.col < COLS && position.row < ROWS {
+            true => position.row * COLS + position.col,
+            false => {
+                panic!("Position out of bounds: Position: {:?} is_valid_position={:?}", position, Board::is_valid_position(position.col as i8, position.row as i8))
+            }
         }
     }
 
     // should panic! if index out of bounds (< 0 || >= 42)
-    fn index_to_position(index: usize) -> Position {
-        match index < COLUMNS * ROWS {
+    pub fn index_to_position(index: usize) -> Position {
+        match index < COLS * ROWS {
             true => Position {
-                col: index % COLUMNS,
-                row: index / COLUMNS,
+                col: index % COLS,
+                row: index / COLS,
             },
             false => panic!("Index out of bounds!"),
         }
     }
 
-    fn slot_for(&self, pos: &Position) -> SlotState {
+    fn get_slot(&self, pos: &Position) -> SlotState {
         self.slots[Board::position_to_index(&pos)]
+    }
+
+    pub fn winner_exists(&self) -> Option<WinInfo> {
+        for index in 0..self.slots.len() {
+            let pos = Board::index_to_position(index);
+            let mabye_win_info = self.winner_exists_for_position(pos);
+            match mabye_win_info {
+                Some(win_info) => return Some(win_info),
+                _ => (),
+            }
+        }
+        None
+    }
+
+    // returns all neighbors in a given direction
+    // => including the starting position
+    // => skips neighbors if out of bounds
+    fn get_directional_neighbors(&self, pos: &Position, direction: WinPathDirection, n_neighbors: usize) -> Vec<Position> {
+        let offset: (i8, i8) = match direction {
+            WinPathDirection::Right => (1,0),
+            WinPathDirection::RightDown => (1,1),
+            WinPathDirection::Down => (0,1),
+            WinPathDirection::DownLeft => (-1,1),
+        };
+        let (col_offset, row_offset) = offset;
+
+        let mut neighbors: Vec<Position> = vec![];
+        for i in 0..n_neighbors {
+            // get new position by transforming (multiply with i)
+            let new_col = (pos.col as i8) + col_offset * i as i8;
+            let new_row = (pos.row as i8) + row_offset * i as i8;
+            // check for out of bounds
+            if Board::is_valid_position(new_col, new_row) {
+                // transform to index
+                let target_position = Position { 
+                    col: new_col as usize, 
+                    row: new_row as usize,
+                };
+                neighbors.push(target_position);
+            }
+        }
+        neighbors
+    }
+
+    fn check_win_path(&self, neighbors: &Vec<Position>) -> Option<Player> {
+        // cannot be empty
+        if neighbors.len() == 0 {
+            return None;
+        }
+        // cannot be smaller than win sequence
+        if neighbors.len() < WIN_SEQUENCE {
+            return None;
+        }
+        // check if all neighbors are the same Player
+        // exclude SlotState::Empty
+        let first_neighbor_index = Board::position_to_index(&neighbors[0]);
+        let target_slot_state = self.slots[first_neighbor_index];
+        match target_slot_state {
+            SlotState::Empty => return None,
+            SlotState::Occupied(player) => {
+                let all_slots_same = neighbors
+                    .iter()
+                    .map(|position| self.slots[Board::position_to_index(&position)])
+                    .all(|slot_state| slot_state == target_slot_state);
+                return match all_slots_same {
+                    true => Some(player),
+                    false => None,
+                }
+            }
+        }
+    }
+
+    fn winner_exists_for_position(&self, pos: Position) -> Option<WinInfo> {
+        let all_possible_directions = [
+            WinPathDirection::Right,
+            WinPathDirection::RightDown,
+            WinPathDirection::Down,
+            WinPathDirection::DownLeft
+        ];
+        for win_path_direction in all_possible_directions {
+            let neighbors = self.get_directional_neighbors(
+                &pos, 
+                win_path_direction, 
+                WIN_SEQUENCE
+            );
+            // return WinInfo if found, otherwise continue search
+            let maybe_player: Option<Player> = self.check_win_path(&neighbors);
+            match maybe_player {
+                Some(player) => return Some(WinInfo::new(player, neighbors)),
+                _ => (),
+            }
+        }
+        // extended search done, no winner found!
+        None
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-enum SlotState {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum SlotState {
     Empty,
     Occupied(Player),
 }
@@ -98,115 +217,33 @@ fn random_slot() -> SlotState {
     }
 }
 
-fn directional_neighbor(pos: &Position, direction: &WinPathDirection) -> Option<Position> {
-    fn valid_option(pos: Position) -> Option<Position> {
-        if pos.col < COLUMNS && pos.row < ROWS {
-            Some(pos)
-        } else {
-            None
-        }
-    }
+#[derive(Debug)]
+pub struct WinInfo {
+    pub winner: Player,
+    pub win_path: Vec<Position>,
+}
 
-    match direction {
-        WinPathDirection::Right => valid_option(Position {
-            col: pos.col + 1,
-            row: pos.row,
-        }),
-        WinPathDirection::Down => valid_option(Position {
-            col: pos.col,
-            row: pos.row + 1,
-        }),
-        WinPathDirection::LowerRight => valid_option(Position {
-            col: pos.col + 1,
-            row: pos.row + 1,
-        }),
-        WinPathDirection::UpperRight => {
-            if pos.row > 0 {
-                valid_option(Position {
-                    col: pos.col + 1,
-                    row: pos.row - 1,
-                })
-            } else {
-                None
-            }
+impl WinInfo {
+    fn new(winner: Player, win_path: Vec<Position>) -> WinInfo {
+        WinInfo {
+            winner: winner,
+            win_path: win_path,
         }
     }
 }
 
-pub fn find_win(board: &Board) -> Vec<Position> {
-    for index in 0..board.slots.len() {
-        let pos = Board::index_to_position(index);
-        let path = find_win_for(board, &pos);
-        if path.len() > 0 {
-            return path;
-        }
-    }
-    Vec::new()
-}
-
-fn find_win_for(board: &Board, from: &Position) -> Vec<Position> {
-    let mut queue: Vec<(Position, Vec<Position>, WinPathDirection)> = vec![];
-
-    let path_color = match board.slot_for(&from) {
-        SlotState::Empty => return Vec::new(), // should never happen
-        SlotState::Occupied(Player::One) => 1,
-        SlotState::Occupied(Player::Two) => 2,
-    };
-
-    queue.push((from.clone(), vec![], WinPathDirection::Down));
-    queue.push((from.clone(), vec![], WinPathDirection::Right));
-    queue.push((from.clone(), vec![], WinPathDirection::LowerRight));
-    queue.push((from.clone(), vec![], WinPathDirection::UpperRight));
-
-    while !queue.is_empty() {
-        let (current_pos, mut path, direction) = queue.remove(0);
-        if path.len() >= WIN_SEQUENCE-1 {
-            path.push(current_pos);
-            return path;
-        }
-
-        let possible_pos = directional_neighbor(&current_pos, &direction);
-        if possible_pos.is_none() {
-            break;
-        }
-        let possible_pos = possible_pos.unwrap();
-        let player_at = match board.slot_for(&possible_pos) {
-            SlotState::Empty => break,
-            SlotState::Occupied(Player::One) => 1,
-            SlotState::Occupied(Player::Two) => 2,
-        };
-        if player_at == path_color {
-            let mut new_path = path.clone();
-            new_path.push(current_pos.clone());
-            queue.push((possible_pos, new_path, direction));
-        }
-    }
-
-    Vec::new()
-}
-
+// all directions needed to calculate endgame condition
 enum WinPathDirection {
     Right,
+    RightDown,
     Down,
-    LowerRight,
-    UpperRight,
+    DownLeft,
 }
 
-#[derive(Copy, Clone, Debug)]
-enum Player {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Player {
     One,
     Two,
-}
-
-// player action description
-enum DropInColumn {
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
 }
 
 #[derive(Clone, Debug)]
@@ -215,19 +252,21 @@ pub struct Position {
     pub row: usize,
 }
 
-// all directions needed to calculate endgame condition
-enum Direction {
-    LeftDown,
-    Down,
-    DownRight,
-    Right,
-}
-
 impl PartialEq for Position {
     fn eq(&self, other: &Self) -> bool {
         self.col == other.col && self.row == other.row
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 /*
  * UNIT TESTS
