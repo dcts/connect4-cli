@@ -132,7 +132,7 @@ impl Board {
         let (col_offset, row_offset) = offset;
 
         let mut neighbors: Vec<Position> = vec![];
-        for i in 1..=n_neighbors {
+        for i in 0..n_neighbors {
             // get new position by transforming (multiply with i)
             let new_col = (pos.col as i8) + col_offset * i as i8;
             let new_row = (pos.row as i8) + row_offset * i as i8;

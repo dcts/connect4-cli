@@ -15,7 +15,7 @@ fn main() {
     match maybe_win_info {
         Some(win_info) => {
             println!("\n\n\nWin Info: \n{:?}\n", win_info);
-            // show sequence
+            // show isolated sequence in a new board
             let mut win_board = Board::new();
             win_info.win_path.iter().for_each(|pos| {
                 let indx = Board::position_to_index(pos);
