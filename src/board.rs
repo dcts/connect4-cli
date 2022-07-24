@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use rand::Rng;
 
 // BOARD.rs
@@ -58,6 +60,10 @@ impl Board {
         !col_is_out_of_bound && !row_is_out_of_bound
     }
 
+    // pub fn drop_piece(&self, target_col: i8, player: Player) -> Result<(), Error> {
+    //     if target_col < 
+    // }
+
     pub fn set_slot_state(&mut self, position: Position, player: Player) {
         let target_index = Board::position_to_index(&position);
         let target_slot_state = SlotState::Occupied(player); 
@@ -65,6 +71,7 @@ impl Board {
     }
 
     pub fn print(&self) {
+        println!("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         self.slots.iter().enumerate().for_each(|(indx, slot)| {
             if indx == 0 {
                 // opening pipe
@@ -81,7 +88,8 @@ impl Board {
                 // breaks line after 7 items, must be omitted for the 42nd element
                 print!("\n|");
             }
-        })
+        });
+        println!("");
     }
 
     // should panic for positions that are out of bound
@@ -252,6 +260,15 @@ pub enum Player {
 pub struct Position {
     pub col: usize,
     pub row: usize,
+}
+
+impl Position {
+    pub fn new(col: usize, row: usize) -> Position {
+        Position { 
+            col: col, 
+            row: row 
+        }
+    }
 }
 
 impl PartialEq for Position {
