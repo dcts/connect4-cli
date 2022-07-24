@@ -9,13 +9,13 @@ play a casual game of connect 4 in your terminal. Writen in Rust.
 
 ### Roadmap
 - [ ] Game Logic
-  - [ ] end game conditions
-  - [ ] detects horizontal 4 connectors
-  - [ ] detects vertical 4 connectors
-  - [ ] detects diagonal 4 connectors
+  - [x] end game conditions
+  - [x] detects horizontal 4 connectors
+  - [x] detects vertical 4 connectors
+  - [x] detects diagonal 4 connectors
   - [ ] dropping pins works
 - [ ] UI
-  - [ ] draw board / game state
+  - [x] draw board / game state
   - [ ] draw menu / let user select action
   - [ ] (p2p) show room with peers
   - [ ] IDEA: probably some general menu utility, input your questions with possible functions... Not sure yet
