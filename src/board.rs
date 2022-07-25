@@ -60,9 +60,32 @@ impl Board {
         !col_is_out_of_bound && !row_is_out_of_bound
     }
 
-    // pub fn drop_piece(&self, target_col: i8, player: Player) -> Result<(), Error> {
-    //     if target_col < 
-    // }
+    pub fn drop_piece(&mut self, user_input: i8, player: Player) -> Result<(), String> {
+        if user_input < 1 || user_input > COLS as i8 {
+            return Err(format!("input out of bounds, allowed: 1-{}. Got: {}", COLS, user_input));
+        }
+        let target_col = user_input - 1; 
+        if let SlotState::Occupied(player) = self.slots[Board::position_to_index(&Position::new(target_col as usize, 0))] {
+            return Err(format!("col {} fully occupied. cannot drop here.", target_col));
+        }
+        // get full row
+        let col_positions = self.get_directional_neighbors(
+            &Position::new(target_col as usize, 0), 
+            WinPathDirection::Down, 
+            ROWS
+        );
+        for position in col_positions.into_iter().rev() {
+            if let SlotState::Empty = self.get_slot_state(&position) {
+                self.set_slot_state(position, player);
+                return Ok(());
+            }
+        }
+        Err(format!("this should never happen... user_input={}", user_input))
+    }
+
+    pub fn get_slot_state(&self, pos: &Position) -> SlotState {
+        self.slots[Board::position_to_index(&pos)]
+    }
 
     pub fn set_slot_state(&mut self, position: Position, player: Player) {
         let target_index = Board::position_to_index(&position);
@@ -70,8 +93,17 @@ impl Board {
         self.slots[target_index] = target_slot_state;
     }
 
-    pub fn print(&self) {
-        println!("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    pub fn print(&self, pointer_position: isize) {
+        // println!("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        match pointer_position {
+            0 => println!(" 👇️"),
+            1 => println!("    👇️"),
+            2 => println!("       👇️"),
+            3 => println!("          👇️"),
+            4 => println!("             👇️"),
+            5 => println!("                👇️"),
+            _ => println!(""),
+        }
         self.slots.iter().enumerate().for_each(|(indx, slot)| {
             if indx == 0 {
                 // opening pipe
@@ -111,10 +143,6 @@ impl Board {
             },
             false => panic!("Index out of bounds!"),
         }
-    }
-
-    fn get_slot(&self, pos: &Position) -> SlotState {
-        self.slots[Board::position_to_index(&pos)]
     }
 
     pub fn winner_exists(&self) -> Option<WinInfo> {
@@ -223,7 +251,7 @@ fn random_slot() -> SlotState {
         0 => SlotState::Empty,
         1 => SlotState::Occupied(Player::One),
         2 => SlotState::Occupied(Player::Two),
-        _ => panic!("Randomly generated value is out of bound. Allowed 0-2."),
+        _ => panic!("randomly generated value is out of bound. allowed 0-2."),
     }
 }
 
