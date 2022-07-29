@@ -12,17 +12,46 @@ use network::server::GameSocket;
 
 use std::{thread, time};
 
-fn main() {
+mod graphics;
+use graphics::*;
 
-    println!("Connect 4!");
-    
-    // DROP PIECE DEMO
+
+fn main() {
+    // init board
     let mut board = Board::new();
-    board.drop_piece(1, Player::One);
-    board.drop_piece(1, Player::Two);
-    board.drop_piece(1, Player::One);
-    board.drop_piece(1, Player::Two);
-    board.print(0);
+
+    // screen0: welcome
+    print_new_screen(0);
+    print_intro_message();
+
+    // screen1: get user names
+    print_new_screen(1);
+    println!("🔴 (player 1)");
+    println!("🟡 (player 2)\n");
+    let player_1_name = prompt_for_name(1);
+
+    print_new_screen(1);
+    println!("🔴 {}", player_1_name);
+    println!("🟡 (player 2)\n");
+    let player_2_name = prompt_for_name(2);
+    
+    // screen2: print empty board => prompt for any keystroke to start the game
+    print_new_screen(1);
+    print_new_screen(1);
+    println!("🔴 {}", player_1_name);
+    println!("🟡 {}\n", player_2_name);
+    board.print(-1);
+    // wait_for_player_move(&board, Player::One);
+
+
+
+    // // DROP PIECE DEMO
+    // let mut board = Board::new();
+    // board.drop_piece(1, Player::One);
+    // board.drop_piece(1, Player::Two);
+    // board.drop_piece(1, Player::One);
+    // board.drop_piece(1, Player::Two);
+    // board.print(0);
 
     // GAME LOGIC DEMO
     // let board = Board::random();

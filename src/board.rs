@@ -60,12 +60,25 @@ impl Board {
         !col_is_out_of_bound && !row_is_out_of_bound
     }
 
+    pub fn is_valid_move(&self, user_input: i8) -> bool {
+        if user_input < 1 || user_input > COLS as i8 {
+            return false;
+        }
+        let target_col = user_input - 1; 
+        let target_position: Position = Position::new(target_col as usize, 0);
+        if let SlotState::Occupied(_player) = self.get_slot_state(&target_position) {
+            return false;
+        }
+        return true;
+    }
+
     pub fn drop_piece(&mut self, user_input: i8, player: Player) -> Result<(), String> {
         if user_input < 1 || user_input > COLS as i8 {
             return Err(format!("input out of bounds, allowed: 1-{}. Got: {}", COLS, user_input));
         }
         let target_col = user_input - 1; 
-        if let SlotState::Occupied(player) = self.slots[Board::position_to_index(&Position::new(target_col as usize, 0))] {
+        let target_position: Position = Position::new(target_col as usize, 0);
+        if let SlotState::Occupied(_player) = self.get_slot_state(&target_position) {
             return Err(format!("col {} fully occupied. cannot drop here.", target_col));
         }
         // get full row
@@ -83,8 +96,8 @@ impl Board {
         Err(format!("this should never happen... user_input={}", user_input))
     }
 
-    pub fn get_slot_state(&self, pos: &Position) -> SlotState {
-        self.slots[Board::position_to_index(&pos)]
+    pub fn get_slot_state(&self, pos: &Position) -> &SlotState {
+        &self.slots[Board::position_to_index(&pos)]
     }
 
     pub fn set_slot_state(&mut self, position: Position, player: Player) {
