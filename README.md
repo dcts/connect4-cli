@@ -3,22 +3,11 @@
 play a casual game of connect 4 in your terminal. Writen in Rust.
 
 # Tasks
-- [ ] Game Logic Implementation
-- [ ] Graphics Engine with ASCII game state and menu logic
+- [x] Game Logic Implementation
+- [x] Graphics Engine with ASCII game state and menu logic
 - [ ] Networking Logic (with `libp2p`, see [tutorial](https://blog.logrocket.com/libp2p-tutorial-build-a-peer-to-peer-app-in-rust) for more info)
 
-### Roadmap
-- [ ] Game Logic
-  - [x] end game conditions
-  - [x] detects horizontal 4 connectors
-  - [x] detects vertical 4 connectors
-  - [x] detects diagonal 4 connectors
-  - [ ] dropping pins works
-- [ ] UI
-  - [x] draw board / game state
-  - [ ] draw menu / let user select action
-  - [ ] (p2p) show room with peers
-  - [ ] IDEA: probably some general menu utility, input your questions with possible functions... Not sure yet
+# Roadmap
 - [ ] P2P User experience
   - [ ] input your name
   - [ ] START or JOIN a game
@@ -29,9 +18,10 @@ play a casual game of connect 4 in your terminal. Writen in Rust.
         1. update lokal game state
         2. send move to other client as payload
   - [ ] wait for move from friend
-- [ ] OVERKILL FEATURES 
-  - [ ] Brutal Mode => both player have same color, remember your position you must
-  - [ ] animate drop
+
+# OVERKILL FEATURES 
+- [ ] Brutal Mode => both player have same color, remember your position you must
+- [ ] animate drop
 
 # Graphics Engine Example
 ## Menu Engine (joining a game)
