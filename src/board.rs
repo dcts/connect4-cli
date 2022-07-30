@@ -28,9 +28,9 @@ EXAMPLE BOARD
  */
 
 // RULESET IS HARDCODED AS STANDARD VERSION FOR NOW
-const ROWS: usize = 6; 
-const COLS: usize = 7; 
-const WIN_SEQUENCE: usize = 4;
+pub const ROWS: usize = 6; 
+pub const COLS: usize = 7; 
+pub const WIN_SEQUENCE: usize = 4;
 
 pub struct Board {
     pub slots: [SlotState; (COLS * ROWS) as usize], // 7 cols * 6 rows
@@ -106,37 +106,6 @@ impl Board {
         self.slots[target_index] = target_slot_state;
     }
 
-    pub fn print(&self, pointer_position: isize) {
-        // println!("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        match pointer_position {
-            0 => println!(" 👇️"),
-            1 => println!("    👇️"),
-            2 => println!("       👇️"),
-            3 => println!("          👇️"),
-            4 => println!("             👇️"),
-            5 => println!("                👇️"),
-            _ => println!(""),
-        }
-        self.slots.iter().enumerate().for_each(|(indx, slot)| {
-            if indx == 0 {
-                // opening pipe
-                print!("|");
-            }
-            match slot {
-                SlotState::Empty => print!("  |"),
-                SlotState::Occupied(p) => match p {
-                    Player::One => print!("🔴|"),
-                    Player::Two => print!("🟡|"),
-                },
-            }
-            if (indx + 1) % COLS == 0 && indx != COLS * ROWS - 1 {
-                // breaks line after 7 items, must be omitted for the 42nd element
-                print!("\n|");
-            }
-        });
-        println!("");
-    }
-
     // should panic for positions that are out of bound
     pub fn position_to_index(position: &Position) -> usize {
         match position.col < COLS && position.row < ROWS {
@@ -158,6 +127,13 @@ impl Board {
         }
     }
 
+    pub fn winner_exists_bool(&self) -> bool {
+        let maybe_win_info = self.winner_exists();
+        match maybe_win_info {
+            Some(_win_info) => true,
+            None => false,
+        }
+    }
     pub fn winner_exists(&self) -> Option<WinInfo> {
         for index in 0..self.slots.len() {
             let pos = Board::index_to_position(index);
