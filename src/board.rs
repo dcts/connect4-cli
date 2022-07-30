@@ -1,7 +1,3 @@
-use std::error::Error;
-
-use rand::Rng;
-
 // BOARD.rs
 // static methods
 // [x] Board::new()
@@ -19,12 +15,12 @@ use rand::Rng;
 
 /**
 EXAMPLE BOARD
-|  |🔴|🔴|🟡|  |  |🟡|
-|🟡|🟡|  |  |  |  |🟡|
-|🟡|  |  |🟡|🔴|🟡|🟡|
+|  |  |  |  |  |  |  |
+|🔴|  |  |  |  |  |🔴|
+|🟡|🔴|🔴|  |🔴|🟡|🟡|
 |🔴|🟡|🟡|  |🟡|🔴|🔴|
-|  |🟡|🔴|🟡|  |🟡|🟡|
-|🟡|  |  |  |🟡|  |🟡|
+|🔴|🟡|🔴|🟡|🟡|🟡|🔴|
+|🟡|🔴|🔴|🟡|🟡|🔴|🟡|
  */
 
 // RULESET IS HARDCODED AS STANDARD VERSION FOR NOW
@@ -34,42 +30,23 @@ pub const WIN_SEQUENCE: usize = 4;
 
 pub struct Board {
     pub slots: [SlotState; (COLS * ROWS) as usize], // 7 cols * 6 rows
+    pub pieces_dropped: usize,
+    pub last_move: Option<(Position, Player)>,
 }
 
 impl Board {
     pub fn new() -> Board {
         Board {
             slots: [SlotState::Empty; (COLS * ROWS) as usize],
+            pieces_dropped: 0,
+            last_move: None,
         }
-    }
-
-    // just for testing
-    pub fn random() -> Board {
-        let mut slots = [SlotState::Empty; (COLS * ROWS) as usize];
-        let mut c = 0;
-        while c < COLS * ROWS {
-            slots[c as usize] = random_slot();
-            c += 1;
-        }
-        Board { slots: slots }
     }
 
     pub fn is_valid_position(col: i8, row: i8) -> bool {
         let col_is_out_of_bound = col < 0 || col >= (COLS as i8);
         let row_is_out_of_bound = row < 0 || row >= (ROWS as i8);
         !col_is_out_of_bound && !row_is_out_of_bound
-    }
-
-    pub fn is_valid_move(&self, user_input: i8) -> bool {
-        if user_input < 1 || user_input > COLS as i8 {
-            return false;
-        }
-        let target_col = user_input - 1; 
-        let target_position: Position = Position::new(target_col as usize, 0);
-        if let SlotState::Occupied(_player) = self.get_slot_state(&target_position) {
-            return false;
-        }
-        return true;
     }
 
     pub fn drop_piece(&mut self, user_input: i8, player: Player) -> Result<(), String> {
@@ -233,15 +210,6 @@ impl Board {
 pub enum SlotState {
     Empty,
     Occupied(Player),
-}
-
-fn random_slot() -> SlotState {
-    match rand::thread_rng().gen_range(0..=2) {
-        0 => SlotState::Empty,
-        1 => SlotState::Occupied(Player::One),
-        2 => SlotState::Occupied(Player::Two),
-        _ => panic!("randomly generated value is out of bound. allowed 0-2."),
-    }
 }
 
 #[derive(Debug)]
