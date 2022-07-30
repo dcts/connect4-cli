@@ -1,11 +1,11 @@
-use std::{io::{self, Write}, thread::current};
+use std::{io::{self, Write}};
 use console::{Term, Key};
 use crate::board::{Board, Player, COLS, ROWS, SlotState};
 
 pub fn print_new_screen(newlines_after_title: usize) {
     println!("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     println!("=== CONNECT-4 ===");
-    for i in 0..newlines_after_title {
+    for _ in 0..newlines_after_title {
         println!("");
     }
 }
@@ -21,10 +21,6 @@ pub fn print_intro_message() {
         .read_line(&mut choice)
         .expect("Failed to read input");
     println!("starting game...");
-}
-
-pub fn print_waiting_for_move(player_num: usize) {
-    println!("waiti");
 }
 
 pub fn prompt_for_name(player_num: usize) -> String {
